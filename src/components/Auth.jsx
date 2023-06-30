@@ -13,6 +13,8 @@ export const Auth = () => {
   const signIn = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      //success: populates auth.currentUser
+      //console.log(auth?.currentUser?.)
     } catch (err) {
       console.error(err);
     }
