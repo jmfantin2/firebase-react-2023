@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import filterFirebaseData from "./helpers/filterFirebaseData";
 import { Auth } from "./components/Auth";
-import { db } from "./config/firebase";
+import { auth, db } from "./config/firebase";
 import {
   getDocs,
   collection,
   addDoc,
   deleteDoc,
+  updateDoc,
   doc,
 } from "firebase/firestore";
 
@@ -27,11 +28,20 @@ function App() {
         title: newMovieTitle,
         releaseDate: newMovieReleaseDate,
         receivedAnOscar: isNewMovieOscar,
+        userId: auth?.currentUser?.uid,
       });
       getMovieList();
     } catch (err) {
       console.error(err);
     }
+  };
+
+  //Movie Title Update
+  const [updatedTitle, setUpdatedTitle] = useState("");
+  const updateMovieTitle = async (movieId) => {
+    const movieDoc = doc(db, "movies", movieId);
+    await updateDoc(movieDoc, { title: updatedTitle });
+    getMovieList();
   };
 
   //Movie Deletion
@@ -87,7 +97,17 @@ function App() {
             <h1 style={{ color: movie.receivedAnOscar ? "green" : "red" }}>
               {movie.title}
             </h1>
+
+            <input
+              placeholder="new title..."
+              onChange={(e) => setUpdatedTitle(e.target.value)}
+            />
+            <button onClick={(/*arg!*/) => updateMovieTitle(movie.id)}>
+              Update title
+            </button>
+
             <p>Date: {movie.releaseDate}</p>
+
             <button onClick={(/*arg!*/) => deleteMovie(movie.id)}>
               Delete Movie
             </button>
