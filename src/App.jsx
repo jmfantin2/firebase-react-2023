@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import filterFirebaseData from "./helpers/filterFirebaseData";
 import { Auth } from "./components/Auth";
-import { auth, db } from "./config/firebase";
+import { auth, db, storage } from "./config/firebase";
 import {
   getDocs,
   collection,
@@ -11,6 +11,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
 
 function App() {
   const [movieList, setMovieList] = useState([]);
@@ -20,6 +21,20 @@ function App() {
   const [newMovieTitle, setNewMovieTitle] = useState("");
   const [newMovieReleaseDate, setNewMovieReleaseDate] = useState(2000);
   const [isNewMovieOscar, setIsNewMovieOscar] = useState(false);
+
+  //File upload state
+  const [fileUpload, setFileUpload] = useState(null);
+
+  const uploadFile = async () => {
+    //we don't want to send null
+    if (!fileUpload) return;
+    const filesFolderRef = ref(storage, `projectFiles/${fileUpload.name}`);
+    try {
+      await uploadBytes(filesFolderRef, fileUpload);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   //New Movie Submission
   const onSubmitMovie = async () => {
@@ -113,6 +128,11 @@ function App() {
             </button>
           </div>
         ))}
+      </div>
+
+      <div>
+        <input type="file" onChange={(e) => setFileUpload(e.target.files[0])} />
+        <button onClick={uploadFile}>Upload File</button>
       </div>
     </div>
   );
